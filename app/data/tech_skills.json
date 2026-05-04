@@ -1,0 +1,31 @@
+{
+  "programming_languages": [
+    "python", "java", "javascript", "typescript", "c++", "c#", "go",
+    "rust", "kotlin", "swift", "ruby", "php", "scala", "r"
+  ],
+  "frameworks": [
+    "spring boot", "spring", "django", "flask", "fastapi", "react",
+    "angular", "vue", "next.js", "express", "node.js", ".net",
+    "hibernate", "spring mvc", "spring cloud"
+  ],
+  "databases": [
+    "mysql", "postgresql", "mongodb", "redis", "elasticsearch",
+    "cassandra", "dynamodb", "oracle", "sql server", "sqlite"
+  ],
+  "cloud_devops": [
+    "aws", "azure", "gcp", "docker", "kubernetes", "jenkins",
+    "terraform", "ansible", "ci/cd", "github actions", "gitlab ci"
+  ],
+  "ai_ml": [
+    "machine learning", "deep learning", "nlp", "computer vision",
+    "tensorflow", "pytorch", "scikit-learn", "pandas", "numpy",
+    "langchain", "rag", "transformers", "huggingface", "llm",
+    "neural networks", "reinforcement learning"
+  ],
+  "concepts": [
+    "microservices", "rest api", "graphql", "system design",
+    "design patterns", "data structures", "algorithms", "agile",
+    "scrum", "tdd", "oop", "solid principles", "multithreading",
+    "distributed systems"
+  ]
+}
