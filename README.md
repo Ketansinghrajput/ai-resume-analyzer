@@ -169,6 +169,7 @@ ai-resume-analyzer/
 
 ## Author
 
+
 **Ketansingh Rajput**  
 [GitHub](https://github.com/Ketansinghrajput) · [LinkedIn](https://www.linkedin.com/in/ketansingh-rajput/)
 ```
