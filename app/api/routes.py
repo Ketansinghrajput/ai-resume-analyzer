@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from .schemas import AnalyzeRequest, SkillExtractRequest, RankRequest
 from ..services.skill_extractor import extract_skills, ALL_SKILLS
 from ..services.gap_analyzer import analyze_gap
@@ -18,7 +18,7 @@ async def analyze_resume_vs_job(request: AnalyzeRequest):
 @router.post("/analyze-pdf")
 async def analyze_pdf_resume(
     file: UploadFile = File(...),
-    job_description: str = "",
+    job_description: str = Form(default=""),
 ):
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")

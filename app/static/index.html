@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Resume Analyzer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: #1a1d27;
+      border: 1px solid #2a2d3a;
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #a0a0b0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      background: #0f1117;
+      border: 1px dashed #3a3d4a;
+      border-radius: 8px;
+      color: #e0e0e0;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 14px;
+      background: #0f1117;
+      border: 1px solid #2a2d3a;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 0.9rem;
+      resize: vertical;
+      min-height: 160px;
+      font-family: inherit;
+    }
+
+    textarea:focus { outline: none; border-color: #5865f2; }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #5865f2;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background 0.2s;
+    }
+
+    .btn:hover { background: #4752c4; }
+    .btn:disabled { background: #2a2d3a; color: #555; cursor: not-allowed; }
+
+    .loading {
+      text-align: center;
+      color: #888;
+      padding: 20px;
+      display: none;
+    }
+
+    .results { display: none; }
+
+    .verdict-box {
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .verdict-box.strong { background: #1a3a2a; border: 1px solid #2d6a4a; }
+    .verdict-box.good { background: #2a2a1a; border: 1px solid #6a6a2d; }
+    .verdict-box.partial { background: #2a1a1a; border: 1px solid #6a2d2d; }
+
+    .verdict-text {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .scores {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .score-item {
+      text-align: center;
+    }
+
+    .score-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #5865f2;
+    }
+
+    .score-label {
+      font-size: 0.75rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #a0a0b0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+      margin-top: 20px;
+    }
+
+    .skills-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .skill-tag {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 500;
+    }
+
+    .skill-tag.match { background: #1a3a2a; color: #4caf82; border: 1px solid #2d6a4a; }
+    .skill-tag.missing { background: #3a1a1a; color: #cf6679; border: 1px solid #6a2d2d; }
+    .skill-tag.extra { background: #1a2a3a; color: #5aa3cf; border: 1px solid #2d4a6a; }
+
+    .recs-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .recs-list li {
+      padding: 10px 14px;
+      background: #0f1117;
+      border-left: 3px solid #5865f2;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: #c0c0d0;
+    }
+
+    .error-box {
+      background: #3a1a1a;
+      border: 1px solid #6a2d2d;
+      border-radius: 8px;
+      padding: 16px;
+      color: #cf6679;
+      display: none;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Resume Analyzer</h1>
+    <p class="subtitle">NLP-powered skill gap analysis using transformer embeddings</p>
+
+    <div class="card">
+      <h2>Input</h2>
+      <label>Resume (PDF)</label>
+      <input type="file" id="resumeFile" accept=".pdf" />
+
+      <label>Job Description</label>
+      <textarea id="jobDescription" placeholder="Paste the job description here..."></textarea>
+
+      <button class="btn" id="analyzeBtn" onclick="analyze()">Analyze</button>
+    </div>
+
+    <div class="loading" id="loading">Analyzing resume... this may take a few seconds.</div>
+    <div class="error-box" id="errorBox"></div>
+
+    <div class="results card" id="results">
+      <h2>Analysis Results</h2>
+
+      <div class="verdict-box" id="verdictBox">
+        <div class="verdict-text" id="verdictText"></div>
+        <div class="scores">
+          <div class="score-item">
+            <div class="score-value" id="semanticScore"></div>
+            <div class="score-label">Semantic Match</div>
+          </div>
+          <div class="score-item">
+            <div class="score-value" id="skillScore"></div>
+            <div class="score-label">Skill Match</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Matching Skills</div>
+      <div class="skills-grid" id="matchingSkills"></div>
+
+      <div class="section-title">Missing Skills</div>
+      <div class="skills-grid" id="missingSkills"></div>
+
+      <div class="section-title">Extra Skills (you have, job didn't ask)</div>
+      <div class="skills-grid" id="extraSkills"></div>
+
+      <div class="section-title">Recommendations</div>
+      <ul class="recs-list" id="recommendations"></ul>
+    </div>
+  </div>
+
+  <script>
+    async function analyze() {
+      const file = document.getElementById('resumeFile').files[0];
+      const jd = document.getElementById('jobDescription').value.trim();
+
+      if (!file) { showError('Please upload a PDF resume.'); return; }
+      if (!jd) { showError('Please paste a job description.'); return; }
+
+      document.getElementById('analyzeBtn').disabled = true;
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('errorBox').style.display = 'none';
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('job_description', jd);
+
+        const res = await fetch('http://localhost:8000/api/analyze-pdf', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) throw new Error('Server error: ' + res.status);
+        const json = await res.json();
+        displayResults(json.data);
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        document.getElementById('analyzeBtn').disabled = false;
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+
+  function displayResults(data) {
+  // handle both response structures
+  const match = data.overall_match || data;
+
+  if (!match || !match.verdict) {
+    showError('Could not parse results. Check if job description was included.');
+    return;
+  }
+
+  document.getElementById('verdictText').textContent = match.verdict;
+  document.getElementById('semanticScore').textContent = Math.round(match.semantic_similarity * 100) + '%';
+  document.getElementById('skillScore').textContent = match.skill_match_percentage + '%';
+
+  const box = document.getElementById('verdictBox');
+  box.className = 'verdict-box';
+  if (match.semantic_similarity > 0.7) box.classList.add('strong');
+  else if (match.semantic_similarity > 0.5) box.classList.add('good');
+  else box.classList.add('partial');
+
+  renderSkills('matchingSkills', data.matching_skills, 'match');
+  renderSkills('missingSkills', (data.missing_skills || []).map(s => typeof s === 'string' ? s : s.skill), 'missing');
+  renderSkills('extraSkills', data.extra_skills, 'extra');
+
+  const recsList = document.getElementById('recommendations');
+  recsList.innerHTML = '';
+  (data.recommendations || []).forEach(rec => {
+    const li = document.createElement('li');
+    li.textContent = rec;
+    recsList.appendChild(li);
+  });
+
+  document.getElementById('results').style.display = 'block';
+}
+
+    function renderSkills(elementId, skills, type) {
+      const el = document.getElementById(elementId);
+      el.innerHTML = '';
+      if (!skills || skills.length === 0) {
+        el.innerHTML = '<span style="color:#555;font-size:0.85rem">None</span>';
+        return;
+      }
+      skills.forEach(skill => {
+        const tag = document.createElement('span');
+        tag.className = 'skill-tag ' + type;
+        tag.textContent = skill;
+        el.appendChild(tag);
+      });
+    }
+
+    function showError(msg) {
+      const box = document.getElementById('errorBox');
+      box.textContent = msg;
+      box.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
