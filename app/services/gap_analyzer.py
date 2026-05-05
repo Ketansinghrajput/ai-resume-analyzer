@@ -1,6 +1,7 @@
 from .skill_extractor import extract_skills
 from .embedding_service import compute_similarity, find_most_relevant_skills
-
+from .keyword_analyzer import compute_ats_score
+from .skill_extractor import extract_skills, extract_entities
 
 def analyze_gap(resume_text: str, job_description: str) -> dict:
     resume_skills = extract_skills(resume_text)
@@ -34,6 +35,8 @@ def analyze_gap(resume_text: str, job_description: str) -> dict:
         "missing_skills": missing_skill_priority,
         "extra_skills": sorted(list(extra_skills)),
         "resume_analysis": resume_skills,
+        "ats_analysis": compute_ats_score(resume_text, job_description),
+"resume_entities": extract_entities(resume_text),
         "job_analysis": job_skills,
         "recommendations": recommendations,
     }

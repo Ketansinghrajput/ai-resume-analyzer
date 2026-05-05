@@ -50,6 +50,60 @@ def extract_skills(text: str) -> dict:
         "experience": experience,
     }
 
+def extract_entities(text: str) -> dict:
+    """
+    Extract named entities from resume using spaCy NER.
+    Identifies: Organizations, Job Titles, Certifications, Locations
+    """
+    doc = nlp(text)
+    
+    entities = {
+        "organizations": [],
+        "locations": [],
+        "dates": [],
+        "misc": []
+    }
+    
+    for ent in doc.ents:
+        if ent.label_ == "ORG" and ent.text not in entities["organizations"]:
+            entities["organizations"].append(ent.text)
+        elif ent.label_ in ["GPE", "LOC"] and ent.text not in entities["locations"]:
+            entities["locations"].append(ent.text)
+        elif ent.label_ == "DATE" and ent.text not in entities["dates"]:
+            entities["dates"].append(ent.text)
+        elif ent.label_ in ["PERSON", "PRODUCT", "EVENT"] and ent.text not in entities["misc"]:
+            entities["misc"].append(ent.text)
+    
+    # Extract job titles using pattern matching
+    job_title_patterns = [
+        r'(?i)(software engineer|backend developer|frontend developer|full stack developer|'
+        r'data engineer|ml engineer|devops engineer|system engineer|java developer|'
+        r'python developer|cloud engineer|solutions architect)',
+    ]
+    
+    job_titles = []
+    for pattern in job_title_patterns:
+        matches = re.findall(pattern, text)
+        job_titles.extend(matches)
+    
+    entities["job_titles"] = list(set(job_titles))
+    
+    # Extract certifications
+    cert_patterns = [
+        r'(?i)(aws certified|google certified|azure certified|'
+        r'oracle certified|pmp|scrum master|cissp|ceh|'
+        r'kubernetes certified|ckad|cka)',
+    ]
+    
+    certifications = []
+    for pattern in cert_patterns:
+        matches = re.findall(pattern, text)
+        certifications.extend(matches)
+    
+    entities["certifications"] = list(set(certifications))
+    
+    return entities
+
 
 def extract_experience(text: str) -> dict:
     patterns = [

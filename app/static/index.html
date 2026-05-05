@@ -183,6 +183,26 @@
       padding: 0;
     }
 
+    .ats-box {
+  background: #0f1117;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 8px;
+}
+
+.ats-score-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.ats-verdict {
+  font-size: 0.88rem;
+  color: #a0a0b0;
+  flex: 1;
+}
+
     .recs-list li {
       padding: 10px 14px;
       background: #0f1117;
@@ -252,6 +272,37 @@
       <div class="section-title">Recommendations</div>
       <ul class="recs-list" id="recommendations"></ul>
     </div>
+
+    <div class="section-title">ATS Score</div>
+<div class="ats-box" id="atsBox">
+  <div class="ats-score-row">
+    <div class="score-item">
+      <div class="score-value" id="atsScore"></div>
+      <div class="score-label">ATS Score</div>
+    </div>
+    <div class="ats-verdict" id="atsVerdict"></div>
+  </div>
+  <div class="section-title" style="margin-top:16px">Found Keywords</div>
+  <div class="skills-grid" id="foundKeywords"></div>
+  <div class="section-title" style="margin-top:16px">Missing Keywords</div>
+  <div class="skills-grid" id="missingKeywords"></div>
+</div>
+
+<div class="section-title">Detected Entities</div>
+<div id="entitiesBox">
+  <div style="margin-bottom:8px">
+    <span style="color:#888;font-size:0.82rem">Job Titles: </span>
+    <span id="jobTitles" style="color:#c0c0d0;font-size:0.85rem"></span>
+  </div>
+  <div style="margin-bottom:8px">
+    <span style="color:#888;font-size:0.82rem">Organizations: </span>
+    <span id="organizations" style="color:#c0c0d0;font-size:0.85rem"></span>
+  </div>
+  <div>
+    <span style="color:#888;font-size:0.82rem">Certifications: </span>
+    <span id="certifications" style="color:#c0c0d0;font-size:0.85rem"></span>
+  </div>
+</div>
   </div>
 
   <script>
@@ -296,6 +347,23 @@
     showError('Could not parse results. Check if job description was included.');
     return;
   }
+  // ATS Analysis
+if (data.ats_analysis) {
+  const ats = data.ats_analysis;
+  document.getElementById('atsScore').textContent = ats.ats_score + '%';
+  document.getElementById('atsVerdict').textContent = ats.ats_verdict;
+  
+  renderSkills('foundKeywords', ats.found_keywords.map(k => k.keyword), 'match');
+  renderSkills('missingKeywords', ats.missing_keywords.map(k => k.keyword), 'missing');
+}
+
+// Entities
+if (data.resume_entities) {
+  const ent = data.resume_entities;
+  document.getElementById('jobTitles').textContent = ent.job_titles.join(', ') || 'None detected';
+  document.getElementById('organizations').textContent = ent.organizations.join(', ') || 'None detected';
+  document.getElementById('certifications').textContent = ent.certifications.join(', ') || 'None detected';
+}
 
   document.getElementById('verdictText').textContent = match.verdict;
   document.getElementById('semanticScore').textContent = Math.round(match.semantic_similarity * 100) + '%';
